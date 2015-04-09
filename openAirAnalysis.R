@@ -23,7 +23,8 @@ summary(mydata)
 # ggpairs(mydataTrim)
 plot(mydataTrim, pch = 16)
 
-# fit all air quality measures (with all interaction)
+# fitting 2 naive models 
+lm.fit_all = lm (mydata$pm10 ~ mydata$nox * mydata$no2 * mydata$o3 * mydata$so2 * mydata$co)
 lm.fit_full = lm (mydata$pm10 ~ mydata$nox + mydata$no2 + mydata$o3 + mydata$so2 + mydata$co)
 summary(lm.fit_full)
 anova(lm.fit_full)
