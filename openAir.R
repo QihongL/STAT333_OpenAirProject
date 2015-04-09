@@ -4,7 +4,7 @@ rm(list = ls())
 library(GGally)
 library(car)
 library(plyr)
-mydata = read.csv('databases/OpenAir_example_data_long.csv')
+mydata = read.csv('data/OpenAir_example_data_long.csv')
 dim(mydata)
 
 # eliminate rows with missing values (NA)
@@ -24,10 +24,10 @@ summary(mydata)
 plot(mydataTrim, pch = 16)
 
 # fit all air quality measures (with all interaction)
-lm.fit_all = lm (mydata$pm10 ~ mydata$nox * mydata$no2 * mydata$o3 * mydata$so2 * mydata$co)
-summary(lm.fit_all)
-anova(lm.fit_all)
-Anova(lm.fit_all, type = 'III')
+lm.fit_full = lm (mydata$pm10 ~ mydata$nox + mydata$no2 + mydata$o3 + mydata$so2 + mydata$co)
+summary(lm.fit_full)
+anova(lm.fit_full)
+Anova(lm.fit_full, type = 'III')
 
 ####### TODO ##############
 ## check auto-correlations
