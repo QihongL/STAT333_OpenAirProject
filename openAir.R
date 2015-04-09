@@ -28,6 +28,8 @@ lm.fit_full = lm (mydata$pm10 ~ mydata$nox + mydata$no2 + mydata$o3 + mydata$so2
 summary(lm.fit_full)
 anova(lm.fit_full)
 Anova(lm.fit_full, type = 'III')
+plot(lm.fit_full)
+
 
 ####### TODO ##############
 ## check auto-correlations
