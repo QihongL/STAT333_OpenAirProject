@@ -15,14 +15,34 @@ mydata[length(mydata) + 1] = mydata[7]
 mydata[7] = NULL
 colnames(mydata)[10] = 'pm10'
 
+
+####################################
+# glance at the data
+####################################
 # temp: trim the dimentionality of the input space (to plot data)
 mydataTrim = data.frame(mydata[1:300,2:10])
 
-# glance at the data
+# some summaries
 head(mydata)
 summary(mydata)
 # ggpairs(mydataTrim)
 plot(mydataTrim, pch = 16)
+
+# plot data aginst time (for 1st 300 obs)
+# we see clear autocorrelation... 
+par(mfrow=c(3,3)) 
+for (i in 1:length(mydataTrim)){
+    plot(1:dim(mydataTrim[i])[1], mydataTrim[,i])  
+    title(colnames(mydataTrim)[i])
+}
+mtext("Plot all predictors against time", side = 3, line = -1.5, outer = TRUE)
+
+
+
+####################################
+# Analysis, fitting models 
+####################################
+
 
 # fitting a nai
 lm.fit_all = lm(mydata$pm10 ~ mydata$nox +mydata$no2 +mydata$o3 +mydata$so2 +mydata$co)
@@ -31,13 +51,6 @@ lm.fit_all = lm(mydata$pm10 ~ mydata$nox +mydata$no2 +mydata$o3 +mydata$so2 +myd
 # QQ plot indicating abnormality
 # outliers removal needed
 
-par(mfrow=c(3,3)) 
-for (i in 1:length(mydataTrim)){
-    plot(1:dim(mydataTrim[i])[1], mydataTrim[,i])  
-    title(colnames(mydataTrim)[i])
-}
-mtext("Visualizeing everything against time", side = 3, line = -1.5, outer = TRUE)
-# we see clear autocorrelation... 
 
 # stepwise regression procedure
 # lm.null = lm(mydata$pm10 ~ 1, data = mydataTrim)
