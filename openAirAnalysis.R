@@ -4,6 +4,7 @@ rm(list = ls())
 library(GGally)
 library(car)
 library(plyr)
+library(leaps)
 mydata = read.csv('data/OpenAir_example_data_long.csv')
 dim(mydata)
 
@@ -25,12 +26,13 @@ plot(mydataTrim, pch = 16)
 
 # fitting 2 naive models 
 lm.fit_all = lm (mydata$pm10 ~ mydata$nox * mydata$no2 * mydata$o3 * mydata$so2 * mydata$co)
-lm.fit_full = lm (mydata$pm10 ~ mydata$nox + mydata$no2 + mydata$o3 + mydata$so2 + mydata$co)
-summary(lm.fit_full)
-anova(lm.fit_full)
-Anova(lm.fit_full, type = 'III')
-plot(lm.fit_full)
+summary(lm.fit_all)
+anova(lm.fit_all)
 
+# stepwise regression procedure
+lm.null = lm(mydata$pm10 ~ 1, data = mydata)
+lm.full = lm(mydata$pm10 ~ ., data = mydata)
+step(lm.null, scope = list(lowr = lm.null, upper = lm.full), direction = 'both')
 
 ####### TODO ##############
 ## check auto-correlations
