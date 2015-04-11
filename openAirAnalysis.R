@@ -24,15 +24,26 @@ summary(mydata)
 # ggpairs(mydataTrim)
 plot(mydataTrim, pch = 16)
 
-# fitting 2 naive models 
-lm.fit_all = lm (mydata$pm10 ~ mydata$nox * mydata$no2 * mydata$o3 * mydata$so2 * mydata$co)
-summary(lm.fit_all)
-anova(lm.fit_all)
+# fitting a nai
+lm.fit_all = lm(mydata$pm10 ~ mydata$nox +mydata$no2 +mydata$o3 +mydata$so2 +mydata$co)
+
+# plot(lm.fit_all)
+# QQ plot indicating abnormality
+# outliers removal needed
+
+par(mfrow=c(3,3)) 
+for (i in 1:length(mydataTrim)){
+    plot(1:dim(mydataTrim[i])[1], mydataTrim[,i])  
+    title(colnames(mydataTrim)[i])
+}
+mtext("Visualizeing everything against time", side = 3, line = -1.5, outer = TRUE)
+# we see clear autocorrelation... 
 
 # stepwise regression procedure
-lm.null = lm(mydata$pm10 ~ 1, data = mydata)
-lm.full = lm(mydata$pm10 ~ ., data = mydata)
-step(lm.null, scope = list(lowr = lm.null, upper = lm.full), direction = 'both')
+# lm.null = lm(mydata$pm10 ~ 1, data = mydataTrim)
+# lm.full = lm(mydata$pm10 ~ ., data = mydataTrim)
+# step(lm.null, scope = list(lowr = lm.null, upper = lm.full), direction = 'both')
+
 
 ####### TODO ##############
 ## check auto-correlations
