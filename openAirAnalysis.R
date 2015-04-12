@@ -20,19 +20,24 @@ colnames(mydata)[10] = 'pm10'
 # glance at the data
 ####################################
 # temp: trim the dimentionality of the input space (to plot data)
-mydataTrim = data.frame(mydata[1:300,2:10])
+numObsSelect = 300
+mydataTrim = data.frame(mydata[1:numObsSelect,2:10])
 
 # some summaries
 head(mydata)
 summary(mydata)
+
+# scatter matrix and correlation matrix 
+# corr with Y & multicollinearity between X detected 
 # ggpairs(mydataTrim)
 plot(mydataTrim, pch = 16)
 
 # plot data aginst time (for 1st 300 obs)
-# we see clear autocorrelation... 
+# we see clear autocorrelation when plotting 300 obs,
+# it is not obvious in the long run... might need formal test
 par(mfrow=c(3,3)) 
 for (i in 1:length(mydataTrim)){
-    plot(1:dim(mydataTrim[i])[1], mydataTrim[,i])  
+    plot(1:dim(mydataTrim[i])[1], mydataTrim[,i], pch = 20)  
     title(colnames(mydataTrim)[i])
 }
 mtext("Plot all predictors against time", side = 3, line = -1.5, outer = TRUE)
@@ -59,7 +64,6 @@ lm.fit_all = lm(mydata$pm10 ~ mydata$nox +mydata$no2 +mydata$o3 +mydata$so2 +myd
 
 
 ####### TODO ##############
-## check auto-correlations
 ## check multicolinearity
 ## variable selections
 ## residual analysis
