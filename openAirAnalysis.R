@@ -42,6 +42,13 @@ for (i in 1:length(mydataTrim)){
 }
 mtext("Plot all predictors against time", side = 3, line = -1.5, outer = TRUE)
 
+# box plot, check outliers
+par(mfrow=c(3,3)) 
+for (i in 1:length(mydataTrim)){
+    boxplot(mydataTrim[,i])
+    title(colnames(mydataTrim)[i])
+}
+mtext("Box Plot for all predictors", side = 3, line = -1.5, outer = TRUE)
 
 
 ####################################
