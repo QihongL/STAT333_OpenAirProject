@@ -71,7 +71,19 @@ lm.fit_null = lm(mydata$pm10 ~ 1, data = mydata)
 step(lm.fit_null, scope=list(lowr=lm.fit_null, upper=lm.fit_all), direction="both")
 
 # all regression
-All_reg(pm10 ~ ws +wd +nox +no2 +o3 +so2 +co, data = mydata, nbest=4, nvmax=6)
+out = All_reg(pm10 ~ ws +wd +nox +no2 +o3 +so2 +co, data = mydata, nbest=4, nvmax=6)
+
+# plot variable selection criteria
+par(mfrow=c(2,2)) 
+plot(out$RSQ ~ out$P, pch = 20, main = 'R against P', 
+     ylab = 'R', xlab = 'number of parameters')
+plot(out$RSQ_A ~ out$P, pch = 20, main = 'Adjusted R sq against P', 
+     ylab = 'Adjusted R sq', xlab = 'number of parameters')
+plot(out$Cp ~ out$P, pch = 20, main = 'Cp against P', 
+     ylab = 'Cp', xlab = 'number of parameters')
+abline(0,1)
+plot(out$BIC ~ out$P, pch = 20, main = 'BIC against P', 
+     ylab = 'BIC', xlab = 'number of parameters')
 
 ####################
 # Check the model
