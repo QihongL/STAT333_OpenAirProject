@@ -5,7 +5,6 @@ library(GGally)
 library(car)                                                                                                                                  
 library(plyr)
 library(leaps)
-library(outliers)
 source('All_reg.R')
 
 ################
@@ -71,7 +70,8 @@ lm.fit_null = lm(mydata$pm10 ~ 1, data = mydata)
 
 step(lm.fit_null, scope=list(lowr=lm.fit_null, upper=lm.fit_all), direction="both")
 
-
+# all regression
+All_reg(pm10 ~ ws +wd +nox +no2 +o3 +so2 +co, data = mydata, nbest=4, nvmax=6)
 
 ####################
 # Check the model
