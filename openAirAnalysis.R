@@ -2,9 +2,16 @@
 setwd('/Users/Qihong/Code/github/STAT333_Project')
 rm(list = ls())
 library(GGally)
-library(car)
+library(car)                                                                                                                                  
 library(plyr)
 library(leaps)
+library(outliers)
+source('All_reg.R')
+
+################
+#PRE-PROCESSING
+################
+# load the data
 mydata = read.csv('data/OpenAir_example_data_long.csv')
 dim(mydata)
 
@@ -22,6 +29,7 @@ colnames(mydata)[10] = 'pm10'
 # temp: trim the dimentionality of the input space (to plot data)
 numObsSelect = 300
 mydataTrim = data.frame(mydata[1:numObsSelect,2:10])
+mydata = mydata[1:numObsSelect,]
 
 # some summaries
 head(mydata)
@@ -30,7 +38,7 @@ summary(mydata)
 # scatter matrix and correlation matrix 
 # corr with Y & multicollinearity between X detected 
 # ggpairs(mydataTrim)
-plot(mydataTrim, pch = 16)
+plot(mydataTrim, pch = 20)
 
 # plot data aginst time (for 1st 300 obs)
 # we see clear autocorrelation when plotting 300 obs,
@@ -51,23 +59,69 @@ for (i in 1:length(mydataTrim)){
 mtext("Box Plot for all predictors", side = 3, line = -1.5, outer = TRUE)
 
 
+
 ####################################
 # Analysis, fitting models 
 ####################################
 
+# fitting naive models
+lm.fit_full = lm(mydata$pm10 ~ mydata$ws+ mydata$wd + mydata$nox +mydata$no2 +mydata$o3 +mydata$so2 +mydata$co)
+lm.fit_all = lm(mydata$pm10 ~ mydata$ws* mydata$wd* mydata$nox *mydata$no2 *mydata$o3 *mydata$so2 *mydata$co)
+lm.fit_null = lm(mydata$pm10 ~ 1, data = mydata)
 
-# fitting a nai
-lm.fit_all = lm(mydata$pm10 ~ mydata$nox +mydata$no2 +mydata$o3 +mydata$so2 +mydata$co)
+step(lm.fit_null, scope=list(lowr=lm.fit_null, upper=lm.fit_all), direction="both")
 
+
+
+####################
+# Check the model
+####################
 # plot(lm.fit_all)
 # QQ plot indicating abnormality
 # outliers removal needed
 
 
-# stepwise regression procedure
-# lm.null = lm(mydata$pm10 ~ 1, data = mydataTrim)
-# lm.full = lm(mydata$pm10 ~ ., data = mydataTrim)
-# step(lm.null, scope = list(lowr = lm.null, upper = lm.full), direction = 'both')
+# residuals 
+par(mfrow=c(3,3)) 
+lm.fit_temp = lm.fit_full
+plot(lm.fit_temp$residuals ~ lm.fit_temp$fitted.values, pch = 20, 
+     main = 'Residuals against fitted values', xlab = 'fitted values', ylab = 'residuals')
+abline(0,0)
+
+plot(lm.fit_temp$residuals, pch = 20, 
+     main = 'Residuals against time', xlab = 'time', ylab = 'residuals')
+abline(0,0)
+
+# non-constancy variance! 
+plot(lm.fit_temp$residuals ~ mydata$ws, pch = 20, 
+     main = 'Residuals against wind speed', xlab = 'wind speed', ylab = 'residuals')
+abline(0,0)
+
+plot(lm.fit_temp$residuals ~ mydata$wd, pch = 20, 
+     main = 'Residuals against wind direction', xlab = 'wind direction', ylab = 'residuals')
+abline(0,0)
+
+plot(lm.fit_temp$residuals ~ mydata$nox, pch = 20, 
+     main = 'Residuals against nox', xlab = 'nox', ylab = 'residuals')
+abline(0,0)
+
+plot(lm.fit_temp$residuals ~ mydata$no2, pch = 20, 
+     main = 'Residuals against no2', xlab = 'no2', ylab = 'residuals')
+abline(0,0)
+
+# non-constancy variance
+plot(lm.fit_temp$residuals ~ mydata$o3, pch = 20, 
+     main = 'Residuals against o3', xlab = 'o3', ylab = 'residuals')
+abline(0,0)
+
+plot(lm.fit_temp$residuals ~ mydata$so2, pch = 20, 
+     main = 'Residuals against so2', xlab = 'so2', ylab = 'residuals')
+abline(0,0)
+
+# non-contancy variance
+plot(lm.fit_temp$residuals ~ mydata$co, pch = 20, 
+     main = 'Residuals against co', xlab = 'co', ylab = 'residuals')
+abline(0,0)
 
 
 ####### TODO ##############
