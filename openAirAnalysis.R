@@ -26,9 +26,10 @@ colnames(mydata)[10] = 'pm10'
 # glance at the data
 ####################################
 # temp: trim the dimentionality of the input space (to plot data)
-numObsSelect = 1000
+numObsSelect = 10000
 mydataTrim = data.frame(mydata[1:numObsSelect,2:10])
 mydata = mydata[1:numObsSelect,]
+mydataUNS = as.data.frame(scale(mydata[1:numObsSelect,2:10]))
 
 # some summaries
 head(mydata)
@@ -39,7 +40,9 @@ summary(mydata)
 # ggpairs(mydataTrim)
 # plot(mydataTrim, pch = 20)
 
+########################
 # plot data aginst time (for 1st 300 obs)
+########################
 # we see clear autocorrelation when plotting 300 obs,
 # it is not obvious in the long run... might need formal test
 # par(mfrow=c(3,3)) 
@@ -64,16 +67,18 @@ summary(mydata)
 ####################################
 
 # fitting naive models
-lm.fit_full = lm(mydata$pm10 ~ mydata$ws+ mydata$wd + mydata$nox +mydata$no2 +mydata$o3 +mydata$so2 +mydata$co)
-lm.fit_all = lm(mydata$pm10 ~ mydata$ws* mydata$wd* mydata$nox *mydata$no2 *mydata$o3 *mydata$so2 *mydata$co)
-lm.fit_null = lm(mydata$pm10 ~ 1, data = mydata)
+lm.fit_full = lm(pm10 ~ ws+ wd + nox +no2 +o3 +so2 +co, data = mydataUNS)
+lm.fit_all = lm(pm10 ~ ws* wd* nox *no2 *o3 *so2 *co, data = mydataUNS)
+lm.fit_null = lm(pm10 ~ 1, data = mydataUNS)
 
 step(lm.fit_null, scope=list(lowr=lm.fit_null, upper=lm.fit_all), direction="both")
 
 # all regression
-out = All_reg(pm10 ~ ws +wd +nox +no2 +o3 +so2 +co, data = mydata, nbest=4, nvmax=6)
+out = All_reg(pm10 ~ ws +wd +nox +no2 +o3 +so2 +co, data = mydataUNS, nbest=3, nvmax=6)
 
-fit = lm (y ~ x, data=dat,weights=(1/dat$x^2))
+
+# WEIGETED LEAST SQUARE
+# fit = lm (pm10 ~  wd+ nox+ no2+ o3+ so2+ co, data = mydata, weights= mydata$co)
 
 
 
