@@ -1,5 +1,9 @@
 # Some preliminary analysis for potential data for 333 prject 
+<<<<<<< HEAD
 setwd('/Users/Qihong/Code/github/STAT333_OpenAirProject')
+=======
+# setwd('/Users/Qihong/Code/github/STAT333_Project')
+>>>>>>> origin/master
 rm(list = ls())
 library(GGally)
 library(car)                                                                                                                                  
@@ -26,10 +30,10 @@ colnames(mydata)[10] = 'pm10'
 # glance at the data
 ####################################
 # temp: trim the dimentionality of the input space (to plot data)
-numObsSelect = 10000
+numObsSelect = 500
 mydataTrim = data.frame(mydata[1:numObsSelect,2:10])
 mydata = mydata[1:numObsSelect,]
-mydataUNS = as.data.frame(scale(mydata[1:numObsSelect,2:10]))
+mydataUNS = as.data.frame(scale(mydata[,2:10]))
 
 # some summaries
 head(mydata)
@@ -37,7 +41,7 @@ summary(mydata)
 
 # scatter matrix and correlation matrix 
 # corr with Y & multicollinearity between X detected 
-# ggpairs(mydataTrim)
+ggpairs(mydataTrim)
 # plot(mydataTrim, pch = 20)
 
 ########################
@@ -51,8 +55,8 @@ summary(mydata)
 #     title(colnames(mydataTrim)[i])
 # }
 # mtext("Plot all predictors against time", side = 3, line = -1.5, outer = TRUE)
-
-# box plot, check outliers
+# 
+# # box plot, check outliers
 # par(mfrow=c(3,3)) 
 # for (i in 1:length(mydataTrim)){
 #     boxplot(mydataTrim[,i])
@@ -73,13 +77,18 @@ lm.fit_null = lm(pm10 ~ 1, data = mydataUNS)
 
 step(lm.fit_null, scope=list(lowr=lm.fit_null, upper=lm.fit_all), direction="both")
 
+step(lm.fit_null, scope=list(lowr=lm.fit_null, upper=lm.fit_full), direction="both")
+
 # all regression
-out = All_reg(pm10 ~ ws +wd +nox +no2 +o3 +so2 +co, data = mydataUNS, nbest=3, nvmax=6)
+out = All_reg(pm10 ~ ws +wd +nox +no2 +o3 +so2 +co, data = mydataUNS, nbest=5, nvmax=6)
 
 
 # WEIGETED LEAST SQUARE
-# fit = lm (pm10 ~  wd+ nox+ no2+ o3+ so2+ co, data = mydata, weights= mydata$co)
+fit = lm (pm10 ~  wd+ nox+ no2+ o3+ so2+ co, data = mydataUNS, weights = mydataUNS$nox)
 
+
+
+vif(lm.fit_full)
 
 
 
@@ -101,6 +110,10 @@ plot(out$BIC ~ out$P, pch = 20, main = 'BIC against P',
 
 
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> origin/master
 ####################
 # Check the model
 ####################
@@ -108,47 +121,50 @@ plot(out$BIC ~ out$P, pch = 20, main = 'BIC against P',
 # QQ plot indicating abnormality
 
 # 
+
+lm.fit_best = lm(pm10 ~ no2 + so2 + o3 + wd + ws + co , data = mydataUNS )
+
 # # residuals 
-# par(mfrow=c(3,3)) 
-# lm.fit_temp = lm.fit_full
-# plot(lm.fit_temp$residuals ~ lm.fit_temp$fitted.values, pch = 20, 
-#      main = 'Residuals against fitted values', xlab = 'fitted values', ylab = 'residuals')
-# abline(0,0)
-# 
-# plot(lm.fit_temp$residuals, pch = 20, 
-#      main = 'Residuals against time', xlab = 'time', ylab = 'residuals')
-# abline(0,0)
-# 
-# # non-constancy variance! 
-# plot(lm.fit_temp$residuals ~ mydata$ws, pch = 20, 
-#      main = 'Residuals against wind speed', xlab = 'wind speed', ylab = 'residuals')
-# abline(0,0)
-# 
-# plot(lm.fit_temp$residuals ~ mydata$wd, pch = 20, 
-#      main = 'Residuals against wind direction', xlab = 'wind direction', ylab = 'residuals')
-# abline(0,0)
-# 
-# plot(lm.fit_temp$residuals ~ mydata$nox, pch = 20, 
-#      main = 'Residuals against nox', xlab = 'nox', ylab = 'residuals')
-# abline(0,0)
-# 
-# plot(lm.fit_temp$residuals ~ mydata$no2, pch = 20, 
-#      main = 'Residuals against no2', xlab = 'no2', ylab = 'residuals')
-# abline(0,0)
-# 
-# # non-constancy variance
-# plot(lm.fit_temp$residuals ~ mydata$o3, pch = 20, 
-#      main = 'Residuals against o3', xlab = 'o3', ylab = 'residuals')
-# abline(0,0)
-# 
-# plot(lm.fit_temp$residuals ~ mydata$so2, pch = 20, 
-#      main = 'Residuals against so2', xlab = 'so2', ylab = 'residuals')
-# abline(0,0)
-# 
-# # non-contancy variance
-# plot(lm.fit_temp$residuals ~ mydata$co, pch = 20, 
-#      main = 'Residuals against co', xlab = 'co', ylab = 'residuals')
-# abline(0,0)
+par(mfrow=c(3,3)) 
+lm.fit_temp = lm.fit_best
+plot(lm.fit_temp$residuals ~ lm.fit_temp$fitted.values, pch = 20, 
+     main = 'Residuals against fitted values', xlab = 'fitted values', ylab = 'residuals')
+abline(0,0)
+
+plot(lm.fit_temp$residuals, pch = 20, 
+     main = 'Residuals against time', xlab = 'time', ylab = 'residuals')
+abline(0,0)
+
+# non-constancy variance! 
+plot(lm.fit_temp$residuals ~ mydata$ws, pch = 20, 
+     main = 'Residuals against wind speed', xlab = 'wind speed', ylab = 'residuals')
+abline(0,0)
+
+plot(lm.fit_temp$residuals ~ mydata$wd, pch = 20, 
+     main = 'Residuals against wind direction', xlab = 'wind direction', ylab = 'residuals')
+abline(0,0)
+
+plot(lm.fit_temp$residuals ~ mydata$nox, pch = 20, 
+     main = 'Residuals against nox', xlab = 'nox', ylab = 'residuals')
+abline(0,0)
+
+plot(lm.fit_temp$residuals ~ mydata$no2, pch = 20, 
+     main = 'Residuals against no2', xlab = 'no2', ylab = 'residuals')
+abline(0,0)
+
+# non-constancy variance
+plot(lm.fit_temp$residuals ~ mydata$o3, pch = 20, 
+     main = 'Residuals against o3', xlab = 'o3', ylab = 'residuals')
+abline(0,0)
+
+plot(lm.fit_temp$residuals ~ mydata$so2, pch = 20, 
+     main = 'Residuals against so2', xlab = 'so2', ylab = 'residuals')
+abline(0,0)
+
+# non-contancy variance
+plot(lm.fit_temp$residuals ~ mydata$co, pch = 20, 
+     main = 'Residuals against co', xlab = 'co', ylab = 'residuals')
+abline(0,0)
 
 
 ####### TODO ##############
