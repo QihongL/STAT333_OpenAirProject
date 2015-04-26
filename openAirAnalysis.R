@@ -1,5 +1,5 @@
 # Some preliminary analysis for potential data for 333 prject 
-setwd('/Users/Qihong/Code/github/STAT333_Project')
+setwd('/Users/Qihong/Code/github/STAT333_OpenAirProject')
 rm(list = ls())
 library(GGally)
 library(car)                                                                                                                                  
@@ -98,10 +98,6 @@ plot(out$Cp ~ out$P, pch = 20, main = 'Cp against P',
 abline(0,1)
 plot(out$BIC ~ out$P, pch = 20, main = 'BIC against P', 
      ylab = 'BIC', xlab = 'number of parameters')
-
-
-
-
 
 
 
