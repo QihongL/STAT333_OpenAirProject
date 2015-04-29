@@ -70,9 +70,9 @@ mydata2003 = mydata[yrInd[6]:dim(mydata)[1], ] #2003 after
 
 
 
-####################################
-# Analysis, fitting models 
-####################################
+#################
+# Fitting models 
+#################
 
 # fitting naive models
 lm.fit_full = lm(pm10 ~ ws+ wd + nox +no2 +o3 +so2 +co, data = mydata2003)
@@ -87,18 +87,24 @@ out = All_reg(pm10 ~ ws +wd +no2 +nox +o3 +so2 +co, data = mydataUNS, nbest=4, n
 
 
 # "best"
-lm.fit_best = lm(formula = pm10 ~ no2 + so2 + wd + nox + o3 + ws + co, data = mydata2003)
+lm.fit_best = lm(formula = pm10 ~ no2 + so2 + wd + o3 + ws + co, data = mydata2003)
 
 # remove outlier from 2003after data 
-# (every execution remove the obervation w/ the biggest residual)
+# (every execution the this line removes one obervation w/ the biggest residual)
+# Namely, you need to run this line TWICE to remove 2 outlier points! 
+# And of course, you need to refit the model after outlier removal
 mydata2003 = mydata2003[- which(lm.fit_best$residuals ==  max(lm.fit_best$residuals)), ]
 
-par(mfrow = c(2,2))
 
+
+############################
+# visualize the model fit 
+############################
+par(mfrow = c(2,2))
 lm.fit_temp = lm.fit_best
 plot(lm.fit_temp)
 vif(lm.fit_temp)
-
+colldiag(lm.fit_temp)
 
 
 
@@ -116,8 +122,6 @@ plot(out$Cp ~ out$P, pch = 20, main = 'Cp against P',
 abline(0,1)
 plot(out$BIC ~ out$P, pch = 20, main = 'BIC against P', 
      ylab = 'BIC', xlab = 'number of parameters')
-
-
 
 
 
