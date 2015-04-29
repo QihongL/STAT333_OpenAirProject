@@ -133,11 +133,12 @@ plot(out$BIC ~ out$P, pch = 20, main = 'BIC against P',
 
 # 
 
-lm.fit_best = lm(pm10 ~ no2 + so2 + o3 + wd + ws + co , data = mydataUNS )
-
-# # residuals 
-par(mfrow=c(3,3)) 
+# residuals 
 lm.fit_temp = lm.fit_best
+dat = mydata2003
+
+
+par(mfrow=c(3,3)) 
 plot(lm.fit_temp$residuals ~ lm.fit_temp$fitted.values, pch = 20, 
      main = 'Residuals against fitted values', xlab = 'fitted values', ylab = 'residuals')
 abline(0,0)
@@ -147,33 +148,33 @@ plot(lm.fit_temp$residuals, pch = 20,
 abline(0,0)
 
 # non-constancy variance! 
-plot(lm.fit_temp$residuals ~ mydata$ws, pch = 20, 
+plot(lm.fit_temp$residuals ~ dat$ws, pch = 20, 
      main = 'Residuals against wind speed', xlab = 'wind speed', ylab = 'residuals')
 abline(0,0)
 
-plot(lm.fit_temp$residuals ~ mydata$wd, pch = 20, 
+plot(lm.fit_temp$residuals ~ dat$wd, pch = 20, 
      main = 'Residuals against wind direction', xlab = 'wind direction', ylab = 'residuals')
 abline(0,0)
 
-plot(lm.fit_temp$residuals ~ mydata$nox, pch = 20, 
+plot(lm.fit_temp$residuals ~ dat$nox, pch = 20, 
      main = 'Residuals against nox', xlab = 'nox', ylab = 'residuals')
 abline(0,0)
 
-plot(lm.fit_temp$residuals ~ mydata$no2, pch = 20, 
+plot(lm.fit_temp$residuals ~ dat$no2, pch = 20, 
      main = 'Residuals against no2', xlab = 'no2', ylab = 'residuals')
 abline(0,0)
 
 # non-constancy variance
-plot(lm.fit_temp$residuals ~ mydata$o3, pch = 20, 
+plot(lm.fit_temp$residuals ~ dat$o3, pch = 20, 
      main = 'Residuals against o3', xlab = 'o3', ylab = 'residuals')
 abline(0,0)
 
-plot(lm.fit_temp$residuals ~ mydata$so2, pch = 20, 
+plot(lm.fit_temp$residuals ~ dat$so2, pch = 20, 
      main = 'Residuals against so2', xlab = 'so2', ylab = 'residuals')
 abline(0,0)
 
 # non-contancy variance
-plot(lm.fit_temp$residuals ~ mydata$co, pch = 20, 
+plot(lm.fit_temp$residuals ~ dat$co, pch = 20, 
      main = 'Residuals against co', xlab = 'co', ylab = 'residuals')
 abline(0,0)
 
