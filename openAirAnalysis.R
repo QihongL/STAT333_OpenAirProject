@@ -76,14 +76,13 @@ mydata2003 = mydata[yrInd[6]:dim(mydata)[1], ] #2003 after
 
 # fitting naive models
 lm.fit_full = lm(pm10 ~ ws+ wd + nox +no2 +o3 +so2 +co, data = mydata2003)
-# lm.fit_all = lm(pm10 ~ ws* wd* nox *no2 *o3 *so2 *co, data = mydataUNS)
 lm.fit_null = lm(pm10 ~ 1, data = mydata2003)
 
 # stepwise procedure
 step(lm.fit_null, scope=list(lowr=lm.fit_null, upper=lm.fit_full), direction="both")
 
 # all regression
-out = All_reg(pm10 ~ ws +wd +no2 +nox +o3 +so2 +co, data = mydataUNS, nbest=4, nvmax=6)
+out = All_reg(pm10 ~ ws +wd +no2 +nox +o3 +so2 +co, data = mydata2003, nbest=4, nvmax=6)
 
 
 # "best"
@@ -111,7 +110,7 @@ colldiag(lm.fit_temp)
 ##############################
 # plot variable selection criteria
 ##############################
-##############################
+
 par(mfrow=c(2,2)) 
 plot(out$RSQ ~ out$P, pch = 20, main = 'R against P', 
      ylab = 'R', xlab = 'number of parameters')
@@ -126,14 +125,8 @@ plot(out$BIC ~ out$P, pch = 20, main = 'BIC against P',
 
 
 ####################
-# Check the model
+# residuals plots
 ####################
-# plot(lm.fit_all)
-# QQ plot indicating abnormality
-
-# 
-
-# residuals 
 lm.fit_temp = lm.fit_best
 dat = mydata2003
 
@@ -177,12 +170,3 @@ abline(0,0)
 plot(lm.fit_temp$residuals ~ dat$co, pch = 20, 
      main = 'Residuals against co', xlab = 'co', ylab = 'residuals')
 abline(0,0)
-
-
-####### TODO ##############
-## check multicolinearity
-## variable selections
-## residual analysis
-## standardization
-## regularization 
-########################### 
