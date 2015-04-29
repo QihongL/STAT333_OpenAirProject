@@ -1,60 +1,49 @@
-# Some preliminary analysis for potential data for 333 prject 
-
-setwd('/Users/Qihong/Code/github/STAT333_OpenAirProject')
-
-# setwd('/Users/Qihong/Code/github/STAT333_Project')
-
+# code for 333 prject 
 rm(list = ls())
-library(GGally)
-library(car)                                                                                                                                  
-library(plyr)
-library(leaps)
-library(perturb)
-library(MASS)
-source('All_reg.R')
+setwd('/Users/Qihong/Code/github/STAT333_OpenAirProject')
+library(GGally); library(car); library(plyr); library(leaps); 
+library(perturb); library(MASS); source('All_reg.R')
+# load the data
+rawdata = read.csv('data/OpenAir_example_data_long.csv')
 
 ################
 #PRE-PROCESSING
 ################
-# load the data
-mydata = read.csv('data/OpenAir_example_data_long.csv')
-dim(mydata)
-
 # eliminate rows with missing values (NA)
-mydata = mydata[complete.cases(mydata), ]
+mydata = rawdata[complete.cases(rawdata), ]
 # switch the response variables to the end of the dataframe
-mydata[length(mydata) + 1] = mydata[7]
+mydata[length(mydata)] = mydata[7]
 mydata[7] = NULL
-colnames(mydata)[10] = 'pm10'
+colnames(mydata)[9] = 'pm10'
+rm(rawdata) # comment this line if raw data is needed 
+
 
 ##################
 # Modifying the data 
 ##################
 # temp: trim the dimentionality of the input space (to plot data)
 numObsSelect = 500
-mydataTrim = data.frame(mydata[1:numObsSelect,2:10])
-mydata = mydata[1:numObsSelect,]
+mydataTrim = data.frame(mydata[1:numObsSelect,2:length(mydata)])
+# mydata = mydata[1:numObsSelect,]
 
-mydataUNS = as.data.frame(scale(mydata[,2:10]))
-#Fitting data by year
-mydata1998 = mydata[1:3311, ] #1998
-mydata1999 = mydata[3312:9440, ] #1999
-mydata2000 = mydata[9441:16433, ] #2000
-mydata2001 = mydata[16434:22295, ] #2001
-mydata2002 = mydata[22296:29852, ] #2002
-mydata2003 = mydata[29853:37117, ] #2003
-mydata2004 = mydata[37118:42893, ] #2004
+# unit normal scaling 
+mydataUNS = as.data.frame(scale(mydata[,2:length(mydata)]))
 
-####################################
-# glance at the data
-####################################
-# some summaries
-head(mydata)
-summary(mydata)
+yrInd = c(1, 3312, 9441, 16434, 22296, 39853, 37118)
+# mydata1998 = mydata[yrInd[1]:dim(mydata)[1], ] #1998 after 
+# mydata1999 = mydata[yrInd[2]:dim(mydata)[1], ] #1999 after 
+# mydata2000 = mydata[yrInd[3]:dim(mydata)[1], ] #2000 after 
+# mydata2001 = mydata[yrInd[4]:dim(mydata)[1], ] #2001 after 
+# mydata2002 = mydata[yrInd[5]:dim(mydata)[1], ] #2002 after 
+mydata2003 = mydata[yrInd[6]:dim(mydata)[1], ] #2003 after 
+# mydata2004 = mydata[yrInd[7]:dim(mydata)[1], ] #2004 after 
 
+##########################
+# Exploratory visualizations
+##########################
 # scatter matrix and correlation matrix 
 # corr with Y & multicollinearity between X detected 
-ggpairs(mydataTrim)
+# ggpairs(mydataTrim)
 # plot(mydataTrim, pch = 20)
 
 ########################
@@ -62,20 +51,23 @@ ggpairs(mydataTrim)
 ########################
 # we see clear autocorrelation when plotting 300 obs,
 # it is not obvious in the long run... might need formal test
-par(mfrow=c(3,3)) 
-for (i in 1:length(mydataTrim)){
-    plot(1:dim(mydataTrim[i])[1], mydataTrim[,i], pch = 20)  
-    title(colnames(mydataTrim)[i])
-}
-mtext("Plot all predictors against time", side = 3, line = -1.5, outer = TRUE)
-# 
-# # box plot, check outliers
-par(mfrow=c(3,3)) 
-for (i in 1:length(mydataTrim)){
-    boxplot(mydataTrim[,i])
-    title(colnames(mydataTrim)[i])
-}
-mtext("Box Plot for all predictors", side = 3, line = -1.5, outer = TRUE)
+
+# par(mfrow=c(3,3)) 
+# for (i in 1:length(mydataTrim)){
+#     plot(1:dim(mydataTrim[i])[1], mydataTrim[,i], pch = 20)  
+#     title(colnames(mydataTrim)[i])
+# }
+# mtext("Plot all predictors against time", side = 3, line = -1.5, outer = TRUE)
+# # 
+# # # box plot, check outliers
+# par(mfrow=c(3,3)) 
+# for (i in 1:length(mydataTrim)){
+#     boxplot(mydataTrim[,i])
+#     title(colnames(mydataTrim)[i])
+# }
+# mtext("Box Plot for all predictors", side = 3, line = -1.5, outer = TRUE)
+
+
 
 
 ####################################
@@ -83,28 +75,27 @@ mtext("Box Plot for all predictors", side = 3, line = -1.5, outer = TRUE)
 ####################################
 
 # fitting naive models
-lm.fit_full = lm(pm10 ~ ws+ wd + nox +no2 +o3 +so2 +co, data = mydataUNS)
-lm.fit_all = lm(pm10 ~ ws* wd* nox *no2 *o3 *so2 *co, data = mydataUNS)
-lm.fit_null = lm(pm10 ~ 1, data = mydataUNS)
+lm.fit_full = lm(pm10 ~ ws+ wd + nox +no2 +o3 +so2 +co, data = mydata2003)
+# lm.fit_all = lm(pm10 ~ ws* wd* nox *no2 *o3 *so2 *co, data = mydataUNS)
+lm.fit_null = lm(pm10 ~ 1, data = mydata2003)
 
-# step(lm.fit_null, scope=list(lowr=lm.fit_null, upper=lm.fit_all), direction="both")
-
+# stepwise procedure
 step(lm.fit_null, scope=list(lowr=lm.fit_null, upper=lm.fit_full), direction="both")
 
 # all regression
 out = All_reg(pm10 ~ ws +wd +no2 +nox +o3 +so2 +co, data = mydataUNS, nbest=4, nvmax=6)
 
 
-# WEIGETED LEAST SQUARE
-lm.fit_wls = lm (pm10 ~  wd+ nox+ no2+ o3+ so2+ co, data = mydataUNS, weights = mydataUNS$nox)
+# "best"
+lm.fit_best = lm(formula = pm10 ~ no2 + so2 + wd + nox + o3 + ws + co, data = mydata2003)
 
-# Fitting RIDGE regression
-lm.fit_ridge = lm.ridge(pm10 ~  wd+ nox+ no2+ o3+ so2+ co, data = mydataUNS)
-
+# remove outlier from 2003after data 
+# (every execution remove the obervation w/ the biggest residual)
+mydata2003 = mydata2003[- which(lm.fit_best$residuals ==  max(lm.fit_best$residuals)), ]
 
 par(mfrow = c(2,2))
 
-lm.fit_temp = lm.fit_full
+lm.fit_temp = lm.fit_best
 plot(lm.fit_temp)
 vif(lm.fit_temp)
 
@@ -189,4 +180,4 @@ abline(0,0)
 ## residual analysis
 ## standardization
 ## regularization 
-###########################
+########################### 
