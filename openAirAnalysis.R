@@ -1,14 +1,16 @@
 # Some preliminary analysis for potential data for 333 prject 
-<<<<<<< HEAD
+
 setwd('/Users/Qihong/Code/github/STAT333_OpenAirProject')
-=======
+
 # setwd('/Users/Qihong/Code/github/STAT333_Project')
->>>>>>> origin/master
+
 rm(list = ls())
 library(GGally)
 library(car)                                                                                                                                  
 library(plyr)
 library(leaps)
+library(perturb)
+library(MASS)
 source('All_reg.R')
 
 ################
@@ -25,16 +27,27 @@ mydata[length(mydata) + 1] = mydata[7]
 mydata[7] = NULL
 colnames(mydata)[10] = 'pm10'
 
-
-####################################
-# glance at the data
-####################################
+##################
+# Modifying the data 
+##################
 # temp: trim the dimentionality of the input space (to plot data)
 numObsSelect = 500
 mydataTrim = data.frame(mydata[1:numObsSelect,2:10])
 mydata = mydata[1:numObsSelect,]
-mydataUNS = as.data.frame(scale(mydata[,2:10]))
 
+mydataUNS = as.data.frame(scale(mydata[,2:10]))
+#Fitting data by year
+mydata1998 = mydata[1:3311, ] #1998
+mydata1999 = mydata[3312:9440, ] #1999
+mydata2000 = mydata[9441:16433, ] #2000
+mydata2001 = mydata[16434:22295, ] #2001
+mydata2002 = mydata[22296:29852, ] #2002
+mydata2003 = mydata[29853:37117, ] #2003
+mydata2004 = mydata[37118:42893, ] #2004
+
+####################################
+# glance at the data
+####################################
 # some summaries
 head(mydata)
 summary(mydata)
@@ -49,21 +62,20 @@ ggpairs(mydataTrim)
 ########################
 # we see clear autocorrelation when plotting 300 obs,
 # it is not obvious in the long run... might need formal test
-# par(mfrow=c(3,3)) 
-# for (i in 1:length(mydataTrim)){
-#     plot(1:dim(mydataTrim[i])[1], mydataTrim[,i], pch = 20)  
-#     title(colnames(mydataTrim)[i])
-# }
-# mtext("Plot all predictors against time", side = 3, line = -1.5, outer = TRUE)
+par(mfrow=c(3,3)) 
+for (i in 1:length(mydataTrim)){
+    plot(1:dim(mydataTrim[i])[1], mydataTrim[,i], pch = 20)  
+    title(colnames(mydataTrim)[i])
+}
+mtext("Plot all predictors against time", side = 3, line = -1.5, outer = TRUE)
 # 
 # # box plot, check outliers
-# par(mfrow=c(3,3)) 
-# for (i in 1:length(mydataTrim)){
-#     boxplot(mydataTrim[,i])
-#     title(colnames(mydataTrim)[i])
-# }
-# mtext("Box Plot for all predictors", side = 3, line = -1.5, outer = TRUE)
-
+par(mfrow=c(3,3)) 
+for (i in 1:length(mydataTrim)){
+    boxplot(mydataTrim[,i])
+    title(colnames(mydataTrim)[i])
+}
+mtext("Box Plot for all predictors", side = 3, line = -1.5, outer = TRUE)
 
 
 ####################################
@@ -75,27 +87,33 @@ lm.fit_full = lm(pm10 ~ ws+ wd + nox +no2 +o3 +so2 +co, data = mydataUNS)
 lm.fit_all = lm(pm10 ~ ws* wd* nox *no2 *o3 *so2 *co, data = mydataUNS)
 lm.fit_null = lm(pm10 ~ 1, data = mydataUNS)
 
-step(lm.fit_null, scope=list(lowr=lm.fit_null, upper=lm.fit_all), direction="both")
+# step(lm.fit_null, scope=list(lowr=lm.fit_null, upper=lm.fit_all), direction="both")
 
 step(lm.fit_null, scope=list(lowr=lm.fit_null, upper=lm.fit_full), direction="both")
 
 # all regression
-out = All_reg(pm10 ~ ws +wd +nox +no2 +o3 +so2 +co, data = mydataUNS, nbest=5, nvmax=6)
+out = All_reg(pm10 ~ ws +wd +no2 +nox +o3 +so2 +co, data = mydataUNS, nbest=4, nvmax=6)
 
 
 # WEIGETED LEAST SQUARE
-fit = lm (pm10 ~  wd+ nox+ no2+ o3+ so2+ co, data = mydataUNS, weights = mydataUNS$nox)
+lm.fit_wls = lm (pm10 ~  wd+ nox+ no2+ o3+ so2+ co, data = mydataUNS, weights = mydataUNS$nox)
+
+# Fitting RIDGE regression
+lm.fit_ridge = lm.ridge(pm10 ~  wd+ nox+ no2+ o3+ so2+ co, data = mydataUNS)
 
 
+par(mfrow = c(2,2))
 
-vif(lm.fit_full)
-
+lm.fit_temp = lm.fit_full
+plot(lm.fit_temp)
+vif(lm.fit_temp)
 
 
 
 
 ##############################
 # plot variable selection criteria
+##############################
 ##############################
 par(mfrow=c(2,2)) 
 plot(out$RSQ ~ out$P, pch = 20, main = 'R against P', 
@@ -110,10 +128,8 @@ plot(out$BIC ~ out$P, pch = 20, main = 'BIC against P',
 
 
 
-<<<<<<< HEAD
-=======
 
->>>>>>> origin/master
+
 ####################
 # Check the model
 ####################
