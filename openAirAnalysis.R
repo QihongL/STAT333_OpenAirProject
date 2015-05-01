@@ -110,7 +110,12 @@ lm.fit_best_UNS = lm(formula = pm10 ~ ws +no2 +so2 +co, data = mydata2003UNS)
 # And of course, you need to refit the model after outlier removal
 mydata2003 = mydata2003[- which(lm.fit_best$residuals ==  max(lm.fit_best$residuals)), ]
 
-
+############################
+# transformation 
+############################
+bc_out = boxCox(lm.fit_best, lambda = seq(-2,4,0.01), plotit = T, eps = 1/50, xlab = expression(lambda), ylab = 'log-likelihood')
+lambda = 0.5
+lm.fit_bc = lm(pm10^lambda ~ ws +no2 +so2 +co, data = mydata2003)
 
 ############################
 # visualize the model fit 
@@ -188,3 +193,83 @@ abline(0,0)
 plot(lm.fit_temp$residuals ~ dat$co, pch = 20, 
      main = 'Residuals against co', xlab = 'co', ylab = 'residuals')
 abline(0,0)
+
+
+####################
+# interaction terms - 2 ways
+####################
+lm.fit_temp = lm.fit_best
+dat = mydata2003
+
+par(mfrow=c(3,2)) 
+temp = dat$ws*dat$no2
+plot(lm.fit_temp$residuals ~ temp, pch = 20, 
+     main = 'Residuals against ws*no2', xlab = 'ws*no2', ylab = 'residuals')
+abline(0,0)
+temp = dat$ws*dat$so2
+plot(lm.fit_temp$residuals ~ temp, pch = 20, 
+     main = 'Residuals against ws*so2', xlab = 'ws*so2', ylab = 'residuals')
+abline(0,0)
+temp = dat$ws*dat$co
+plot(lm.fit_temp$residuals ~ temp, pch = 20, 
+     main = 'Residuals against ws*co', xlab = 'ws*co', ylab = 'residuals')
+abline(0,0)
+temp = dat$no2*dat$so2
+plot(lm.fit_temp$residuals ~ temp, pch = 20, 
+     main = 'Residuals against no2*so2', xlab = 'no2*so2', ylab = 'residuals')
+abline(0,0)
+temp = dat$no2*dat$co
+plot(lm.fit_temp$residuals ~ temp, pch = 20, 
+     main = 'Residuals against no2*co', xlab = 'no2*co', ylab = 'residuals')
+abline(0,0)
+temp = dat$so2*dat$co
+plot(lm.fit_temp$residuals ~ temp, pch = 20, 
+     main = 'Residuals against so2*co', xlab = 'so2*co', ylab = 'residuals')
+
+
+#########################
+# 3 way
+#########################
+par(mfrow=c(2,2)) 
+temp = dat$ws * dat$no2 * dat$so2
+plot(lm.fit_temp$residuals ~ temp, pch = 20, 
+     main = 'Residuals against ws*no2*so2', xlab = 'ws*no2*so2', ylab = 'residuals')
+abline(0,0)
+temp = dat$ws * dat$no2 * dat$co
+plot(lm.fit_temp$residuals ~ temp, pch = 20, 
+     main = 'Residuals against ws*no2*co', xlab = 'ws*no2*co', ylab = 'residuals')
+abline(0,0)
+temp = dat$ws * dat$so2 * dat$co
+plot(lm.fit_temp$residuals ~ temp, pch = 20, 
+     main = 'Residuals against ws*so2*co', xlab = 'ws*so2*co', ylab = 'residuals')
+abline(0,0)
+temp = dat$no2 * dat$so2* dat$co
+plot(lm.fit_temp$residuals ~ temp, pch = 20, 
+     main = 'Residuals against no2*so2*co', xlab = 'no2*so2*co', ylab = 'residuals')
+abline(0,0)
+
+#########################
+# 4 way
+#########################
+par(mfrow=c(1,1)) 
+temp = dat$ws * dat$no2 * dat$so2* dat$co
+plot(lm.fit_temp$residuals ~ temp, pch = 20, 
+     main = 'Residuals against ws*no2*so2*co', xlab = 'ws*no2*so2*co', ylab = 'residuals')
+abline(0,0)
+
+
+####################################
+# Levene
+####################################
+resids = residuals(lm.fit_best)
+fits = fitted.values(lm.fit_best)
+dat$group = as.factor(recode(dat$co, "-Inf:median(dat$co) = 'A'; else = 'B'"))
+dat = as.data.frame(cbind(dat))
+dat = arrange(dat,desc(-dat$co))
+leveneTest(resids ~ group, data = dat)
+
+dat$group = as.factor(recode(dat$ws, "-Inf:median(dat$ws) = 'A'; else = 'B'"))
+dat = as.data.frame(cbind(dat))
+dat = arrange(dat,desc(-dat$ws))
+leveneTest(resids ~ group, data = dat)
+
