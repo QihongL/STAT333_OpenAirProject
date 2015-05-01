@@ -29,7 +29,8 @@ mydataTrim = data.frame(mydata[1:numObsSelect,2:length(mydata)])
 # unit normal scaling 
 mydataUNS = as.data.frame(scale(mydata[,2:length(mydata)]))
 
-yrInd = c(1, 3312, 9441, 16434, 22296, 39853, 37118)
+yrInd = c(1, 3312, 9441, 16434, 22296, 29853, 37118)
+yrs = c('1998','1999','2000', '2001', '2002', '2003', '2004')
 # mydata1998 = mydata[yrInd[1]:dim(mydata)[1], ] #1998 after 
 # mydata1999 = mydata[yrInd[2]:dim(mydata)[1], ] #1999 after 
 # mydata2000 = mydata[yrInd[3]:dim(mydata)[1], ] #2000 after 
@@ -45,6 +46,20 @@ mydata2003 = mydata[yrInd[6]:dim(mydata)[1], ] #2003 after
 # corr with Y & multicollinearity between X detected 
 # ggpairs(mydataTrim)
 # plot(mydataTrim, pch = 20)
+
+
+# plot PM10 against time 
+# par(mfrow = c(1,1))
+# plot(mydata$pm10, xaxt='n', xlab = 'time', ylab = 'PM10', pch = 20)
+# plot((mydata$pm10 - mean(mydata$pm10)) / sd(mydata$pm10), xaxt='n', xlab = 'Years', ylab = 'PM10', pch = 20)
+# abline(3,0)
+# legend("topright", legend="Three Standard 
+#        Deviation Line", lty=c(1), col="black",cex=0.9)
+# 
+# for (i in 1:length(yrInd)){
+#     axis(1, at=yrInd[i], labels = yrs[i])
+# }
+
 
 ########################
 # plot data aginst time (for 1st 300 obs)
@@ -75,19 +90,20 @@ mydata2003 = mydata[yrInd[6]:dim(mydata)[1], ] #2003 after
 #################
 
 # fitting naive models
-lm.fit_full = lm(pm10 ~ ws+ wd + nox +no2 +o3 +so2 +co, data = mydata2003)
+lm.fit_full = lm(pm10 ~ ws +no2 +o3 +so2 +co, data = mydata2003)
 lm.fit_null = lm(pm10 ~ 1, data = mydata2003)
 
 # stepwise procedure
 step(lm.fit_null, scope=list(lowr=lm.fit_null, upper=lm.fit_full), direction="both")
 
 # all regression
-out = All_reg(pm10 ~ ws +wd +no2 +nox +o3 +so2 +co, data = mydata2003, nbest=4, nvmax=6)
+out = All_reg(pm10 ~ ws +no2 +o3 +so2 +co, data = mydata2003, nbest=3, nvmax=4)
 
 
 # "best"
-lm.fit_best = lm(formula = pm10 ~ no2 + so2 + wd + o3 + ws + co, data = mydata2003)
-
+lm.fit_best = lm(formula = pm10 ~ ws +no2 +so2 +co, data = mydata2003)
+mydata2003UNS = as.data.frame(scale(mydata2003[,2:length(mydata2003)]))
+lm.fit_best_UNS = lm(formula = pm10 ~ ws +no2 +so2 +co, data = mydata2003UNS)
 # remove outlier from 2003after data 
 # (every execution the this line removes one obervation w/ the biggest residual)
 # Namely, you need to run this line TWICE to remove 2 outlier points! 
@@ -130,8 +146,10 @@ plot(out$BIC ~ out$P, pch = 20, main = 'BIC against P',
 lm.fit_temp = lm.fit_best
 dat = mydata2003
 
+par(mfrow=c(3,2)) 
+qqnorm(lm.fit_best$residuals)
+qqline(lm.fit_best$residuals)
 
-par(mfrow=c(3,3)) 
 plot(lm.fit_temp$residuals ~ lm.fit_temp$fitted.values, pch = 20, 
      main = 'Residuals against fitted values', xlab = 'fitted values', ylab = 'residuals')
 abline(0,0)
@@ -145,22 +163,22 @@ plot(lm.fit_temp$residuals ~ dat$ws, pch = 20,
      main = 'Residuals against wind speed', xlab = 'wind speed', ylab = 'residuals')
 abline(0,0)
 
-plot(lm.fit_temp$residuals ~ dat$wd, pch = 20, 
-     main = 'Residuals against wind direction', xlab = 'wind direction', ylab = 'residuals')
-abline(0,0)
+# plot(lm.fit_temp$residuals ~ dat$wd, pch = 20, 
+#      main = 'Residuals against wind direction', xlab = 'wind direction', ylab = 'residuals')
+# abline(0,0)
 
-plot(lm.fit_temp$residuals ~ dat$nox, pch = 20, 
-     main = 'Residuals against nox', xlab = 'nox', ylab = 'residuals')
-abline(0,0)
+# plot(lm.fit_temp$residuals ~ dat$nox, pch = 20, 
+#      main = 'Residuals against nox', xlab = 'nox', ylab = 'residuals')
+# abline(0,0)
 
 plot(lm.fit_temp$residuals ~ dat$no2, pch = 20, 
      main = 'Residuals against no2', xlab = 'no2', ylab = 'residuals')
 abline(0,0)
 
-# non-constancy variance
-plot(lm.fit_temp$residuals ~ dat$o3, pch = 20, 
-     main = 'Residuals against o3', xlab = 'o3', ylab = 'residuals')
-abline(0,0)
+# # non-constancy variance
+# plot(lm.fit_temp$residuals ~ dat$o3, pch = 20, 
+#      main = 'Residuals against o3', xlab = 'o3', ylab = 'residuals')
+# abline(0,0)
 
 plot(lm.fit_temp$residuals ~ dat$so2, pch = 20, 
      main = 'Residuals against so2', xlab = 'so2', ylab = 'residuals')
