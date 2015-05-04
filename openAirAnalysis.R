@@ -22,8 +22,8 @@ rm(rawdata) # comment this line if raw data is needed
 # Modifying the data 
 ##################
 # temp: trim the dimentionality of the input space (to plot data)
-numObsSelect = 500
-mydataTrim = data.frame(mydata[1:numObsSelect,2:length(mydata)])
+# numObsSelect = 500
+# mydataTrim = data.frame(mydata[1:numObsSelect,2:length(mydata)])
 # mydata = mydata[1:numObsSelect,]
 
 # unit normal scaling 
@@ -39,6 +39,8 @@ yrs = c('1998','1999','2000', '2001', '2002', '2003', '2004')
 mydata2003 = mydata[yrInd[6]:dim(mydata)[1], ] #2003 after 
 # mydata2004 = mydata[yrInd[7]:dim(mydata)[1], ] #2004 after 
 
+
+
 ##########################
 # Exploratory visualizations
 ##########################
@@ -47,8 +49,9 @@ mydata2003 = mydata[yrInd[6]:dim(mydata)[1], ] #2003 after
 # ggpairs(mydataTrim)
 # plot(mydataTrim, pch = 20)
 
-
+##########################
 # plot PM10 against time 
+##########################
 # par(mfrow = c(1,1))
 # plot(mydata$pm10, xaxt='n', xlab = 'time', ylab = 'PM10', pch = 20)
 # plot((mydata$pm10 - mean(mydata$pm10)) / sd(mydata$pm10), xaxt='n', xlab = 'Years', ylab = 'PM10', pch = 20)
@@ -59,6 +62,18 @@ mydata2003 = mydata[yrInd[6]:dim(mydata)[1], ] #2003 after
 # for (i in 1:length(yrInd)){
 #     axis(1, at=yrInd[i], labels = yrs[i])
 # }
+
+
+##########################
+# outlier removal 
+##########################
+u = mean(mydata$pm10)
+std = sd(mydata$pm10)
+ind = which((mydata$pm10 > u + 3 * std) | (mydata$pm10 < u - 3 * std));
+mydataR = mydata[-ind,]
+
+lm.fit_full = lm(pm10 ~ ws +no2 +o3 +so2 +co, data = mydataR)
+plot(lm.fit_full)
 
 
 ########################
@@ -81,7 +96,6 @@ mydata2003 = mydata[yrInd[6]:dim(mydata)[1], ] #2003 after
 #     title(colnames(mydataTrim)[i])
 # }
 # mtext("Box Plot for all predictors", side = 3, line = -1.5, outer = TRUE)
-
 
 
 
