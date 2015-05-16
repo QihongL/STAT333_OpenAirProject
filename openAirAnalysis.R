@@ -10,7 +10,7 @@ rawdata = read.csv('data/OpenAir_example_data_long.csv')
 #PRE-PROCESSING
 ################
 # eliminate rows with missing values (NA)
-mydata = rawdata[complete.cases(rawdata), ]
+# mydata = rawdata[complete.cases(rawdata), ]
 # switch the response variables to the end of the dataframe
 mydata[length(mydata)] = mydata[7]
 mydata[7] = NULL
